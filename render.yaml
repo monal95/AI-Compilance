@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: legal-metrology-backend
+    runtime: python
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.1-8b-instant
+      - key: MONGODB_URL
+        sync: false
+      - key: MONGODB_DB
+        value: legal_metrology

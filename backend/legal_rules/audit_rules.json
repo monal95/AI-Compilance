@@ -1,0 +1,163 @@
+{
+  "metadata": {
+    "act": "Legal Metrology Act, 2009",
+    "rules": "Legal Metrology (Packaged Commodities) Rules, 2011",
+    "version": "2.0",
+    "applicability": "Retail packages sold in India including e-commerce listings"
+  },
+  "rules": [
+    {
+      "code": "LM-AUD-001",
+      "field": "mrp_inclusive_of_taxes",
+      "mandatory": true,
+      "penalty": 20,
+      "message": "Missing MRP declaration (inclusive of all taxes).",
+      "legal_reference": "Rule 6(1)(e) - Retail sale price mandatory"
+    },
+    {
+      "code": "LM-AUD-002",
+      "field": "net_quantity",
+      "mandatory": true,
+      "penalty": 20,
+      "message": "Missing net quantity declaration.",
+      "legal_reference": "Rule 6(1)(c) - Net quantity mandatory"
+    },
+    {
+      "code": "LM-AUD-003",
+      "field": "manufacturer_or_importer",
+      "mandatory": true,
+      "penalty": 20,
+      "message": "Missing manufacturer/importer details.",
+      "legal_reference": "Rule 6(1)(a) - Manufacturer name and address mandatory"
+    },
+    {
+      "code": "LM-AUD-004",
+      "field": "consumer_care_information",
+      "mandatory": true,
+      "penalty": 15,
+      "message": "Missing consumer care information.",
+      "legal_reference": "Rule 6(1)(f) - Customer care details mandatory"
+    },
+    {
+      "code": "LM-AUD-005",
+      "field": "date_of_manufacture_or_import",
+      "mandatory": true,
+      "penalty": 15,
+      "message": "Missing date of manufacture/import declaration.",
+      "legal_reference": "Rule 6(1)(d) - Month and year of manufacture mandatory"
+    },
+    {
+      "code": "LM-AUD-006",
+      "field": "country_of_origin",
+      "mandatory": false,
+      "required_if_imported": true,
+      "penalty": 10,
+      "message": "Missing country of origin for imported goods.",
+      "legal_reference": "Country of origin mandatory for imported products"
+    },
+    {
+      "code": "LM-AUD-007",
+      "field": "common_generic_name",
+      "mandatory": true,
+      "penalty": 15,
+      "message": "Missing common or generic name of commodity.",
+      "legal_reference": "Rule 6(1)(b) - Common or generic name mandatory"
+    },
+    {
+      "code": "LM-AUD-008",
+      "field": "manufacturer_address",
+      "mandatory": true,
+      "penalty": 15,
+      "message": "Missing complete manufacturer/packer address.",
+      "legal_reference": "Rule 6(1)(a) - Complete address of manufacturer mandatory"
+    },
+    {
+      "code": "LM-AUD-009",
+      "field": "importer_address",
+      "mandatory": false,
+      "required_if_imported": true,
+      "penalty": 15,
+      "message": "Missing importer name and address for imported goods.",
+      "legal_reference": "Import condition - Importer details required for imported products"
+    },
+    {
+      "code": "LM-AUD-010",
+      "field": "net_quantity_unit_valid",
+      "mandatory": true,
+      "penalty": 10,
+      "message": "Net quantity not in standard SI units (g, kg, ml, L, cm, m).",
+      "legal_reference": "Rule 9 - Quantity in standard units only"
+    },
+    {
+      "code": "LM-AUD-011",
+      "field": "net_quantity_no_approximation",
+      "mandatory": true,
+      "penalty": 15,
+      "message": "Net quantity contains prohibited expressions (approx, about, minimum, average, not less than).",
+      "legal_reference": "Prohibited expressions in net quantity declaration"
+    },
+    {
+      "code": "LM-AUD-012",
+      "field": "mrp_format_valid",
+      "mandatory": true,
+      "penalty": 10,
+      "message": "MRP not in correct format 'MRP Rs. X (inclusive of all taxes)'.",
+      "legal_reference": "Rule 10 - MRP must be clear, unambiguous, and include all taxes"
+    },
+    {
+      "code": "LM-AUD-013",
+      "field": "price_not_exceeding_mrp",
+      "mandatory": true,
+      "penalty": 25,
+      "message": "Selling price exceeds printed MRP - violation of Rule 18.",
+      "legal_reference": "Rule 18 - Sale price cannot exceed MRP"
+    }
+  ],
+  "validation_rules": {
+    "net_quantity": {
+      "allowed_units": ["g", "gram", "grams", "kg", "kilogram", "ml", "millilitre", "l", "litre", "cm", "centimetre", "m", "metre", "sq m", "square metre", "cubic m", "pcs", "pieces", "units"],
+      "prohibited_expressions": ["approx", "approximately", "about", "minimum", "min", "average", "avg", "not less than", "atleast", "at least"],
+      "si_units_only": true
+    },
+    "mrp": {
+      "must_include_taxes": true,
+      "valid_formats": ["MRP", "M.R.P.", "Maximum Retail Price"],
+      "rounding_rules": {
+        "less_than_50_paise": "round_down",
+        "50_to_95_paise": "round_to_50_paise"
+      }
+    },
+    "date_format": {
+      "valid_formats": ["MM/YYYY", "Month YYYY", "MM-YYYY", "DD/MM/YYYY"]
+    }
+  },
+  "maximum_permissible_error": {
+    "weight_volume": [
+      {"range": "up_to_50g_ml", "error_value": 9, "error_type": "absolute", "unit": "g_or_ml"},
+      {"range": "50_to_100g_ml", "error_value": 4.5, "error_type": "absolute", "unit": "g_or_ml"},
+      {"range": "100_to_200g_ml", "error_value": 4.5, "error_type": "percentage"},
+      {"range": "200_to_300g_ml", "error_value": 9, "error_type": "absolute", "unit": "g_or_ml"},
+      {"range": "300_to_500g_ml", "error_value": 3, "error_type": "percentage"},
+      {"range": "500_to_1000g_ml", "error_value": 15, "error_type": "absolute", "unit": "g_or_ml"},
+      {"range": "1000_to_10000g_ml", "error_value": 1.5, "error_type": "percentage"},
+      {"range": "above_15000g_ml", "error_value": 1.0, "error_type": "percentage"}
+    ],
+    "length": {"up_to_10m": "2%", "above_10m": "1%"},
+    "area": {"up_to_10sqm": "4%", "above_10sqm": "1%"},
+    "number": "2%"
+  },
+  "exemptions": {
+    "quantity_exemptions": [
+      {"condition": "less_than_10g_or_10ml", "exempt": true},
+      {"condition": "agricultural_produce_above_50kg", "exempt": true}
+    ],
+    "category_exemptions": [
+      {"condition": "restaurant_fast_food", "exempt": true}
+    ]
+  },
+  "penalties": {
+    "general_violation": 2000,
+    "registration_violation": 4000,
+    "repeat_violation": "as_per_Act_Section_36"
+  }
+}

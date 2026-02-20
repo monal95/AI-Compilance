@@ -1,0 +1,152 @@
+[SECTION: LEGAL METROLOGY ACT, 2009]
+
+[Section 18 - Pre-packaged Commodities]
+No person shall manufacture, pack, sell, import, distribute, deliver, offer, expose or possess for sale any pre-packaged commodity unless such package is in such standard quantities or number and bears thereon such declarations and particulars in such manner as may be prescribed.
+
+[Section 36 - Penalties]
+Whoever manufactures, packs, imports, sells, distributes or delivers any pre-packaged commodity which does not conform to the declarations on the package shall be punished with fine which may extend to twenty-five thousand rupees for the first offence and fifty thousand rupees for the second and subsequent offences.
+
+[SECTION: LEGAL METROLOGY (PACKAGED COMMODITIES) RULES, 2011]
+
+[Rule 6 - Mandatory Declarations on Pre-packaged Commodities]
+(1) Every package shall bear thereon or on a label securely affixed thereto, a definite, plain and conspicuous declaration made in such manner as may be prescribed, giving:
+    (a) the name and address of the manufacturer, or where the manufacturer is not the packer, the name and address of the manufacturer and packer;
+    (b) the common or generic name of the commodity contained in the package;
+    (c) the net quantity, in terms of standard unit of weight or measure, of the commodity contained in the package;
+    (d) the month and year in which the commodity is manufactured or pre-packed or imported;
+    (e) the retail sale price of the package (MRP);
+    (f) the consumer care details including the address for consumer complaints.
+
+(2) Where the manufacturer is not the packer, the package shall also bear the name and address of the packer.
+
+(3) In case of imported packages, the name and address of the importer shall also be declared on the package along with the country of origin.
+
+[Rule 7 - Common or Generic Name]
+The common or generic name of the commodity shall be printed or inscribed legibly and prominently on the package. Trade name alone shall not be used as a substitute for the common or generic name.
+
+[Rule 9 - Declaration of Net Quantity]
+(1) The declaration of quantity shall be expressed in terms of:
+    - Weight: gram (g) or kilogram (kg)
+    - Volume: millilitre (ml) or litre (L)
+    - Length: centimetre (cm) or metre (m)
+    - Area: square centimetre (sq cm) or square metre (sq m)
+    - Number: units or pieces
+
+(2) The following expressions are PROHIBITED in net quantity declaration:
+    - "approximately" or "approx"
+    - "about"
+    - "minimum" or "min"
+    - "average" or "avg"
+    - "not less than"
+    - "at least" or "atleast"
+    - Any qualifying words that suggest approximate quantity
+
+(3) The net quantity shall be accurate and the actual quantity shall not be less than the declared quantity minus the maximum permissible error.
+
+[Rule 10 - Retail Sale Price (MRP)]
+(1) The retail sale price shall be declared in the following format:
+    "MRP Rs. [amount] (inclusive of all taxes)" or "M.R.P. ₹ [amount] (incl. of all taxes)"
+
+(2) The price shall include all taxes - GST, CGST, SGST, IGST, etc.
+
+(3) Rounding Rules for MRP:
+    - Paise less than 50: Round down to nearest rupee
+    - Paise 50 to 95: Round to 50 paise
+
+(4) MRP shall be printed clearly and legibly on the principal display panel.
+
+[Rule 18 - Prohibition of Sale Above MRP]
+No retail dealer or other person including manufacturer, packer, importer and wholesale dealer shall make any sale of any commodity in packed form at a price exceeding the retail sale price thereof. This applies to all channels including e-commerce platforms.
+
+[Rule 11 - Principal Display Panel]
+(1) All mandatory declarations shall be made on the principal display panel of the package.
+(2) The declarations shall be legible and conspicuous.
+(3) Minimum font height requirements based on package area:
+    - Up to 100 sq cm: 1 mm
+    - 100-500 sq cm: 2 mm
+    - 500-2500 sq cm: 4 mm
+    - Above 2500 sq cm: 6 mm
+
+[SECTION: MAXIMUM PERMISSIBLE ERROR (SCHEDULE II)]
+
+[For Weight and Volume:]
+| Quantity Range          | Maximum Permissible Error |
+|------------------------|---------------------------|
+| Up to 50 g/ml          | 9% (but not exceeding 4.5 g/ml) |
+| 50 to 100 g/ml         | 4.5 g/ml |
+| 100 to 200 g/ml        | 4.5% |
+| 200 to 300 g/ml        | 9 g/ml |
+| 300 to 500 g/ml        | 3% |
+| 500 to 1000 g/ml       | 15 g/ml |
+| 1000 to 10000 g/ml     | 1.5% |
+| 10000 to 15000 g/ml    | 150 g/ml |
+| Above 15000 g/ml       | 1% |
+
+[For Length:]
+| Quantity Range         | Maximum Permissible Error |
+|-----------------------|---------------------------|
+| Up to 10 m            | 2% |
+| Above 10 m            | 1% |
+
+[For Area:]
+| Quantity Range         | Maximum Permissible Error |
+|-----------------------|---------------------------|
+| Up to 10 sq m         | 4% |
+| Above 10 sq m         | 1% |
+
+[For Number/Count:]
+Maximum 2% error in the declared count.
+
+[SECTION: WHOLESALE PACKAGES - Rule 26]
+Every wholesale package shall contain:
+(1) Name and address of the manufacturer/packer
+(2) Generic name of the commodity
+(3) Total number of retail packages contained
+(4) Net quantity of each retail package
+(5) Month/year of manufacture
+
+[SECTION: DECEPTIVE PACKAGING - Rule 4]
+(1) A package shall not be so sized or shaped or made so as to mislead or deceive the consumer.
+(2) Excessive headspace or void space beyond reasonable requirements is prohibited.
+(3) Package size must be reasonably related to the quantity of contents.
+(4) Interior space void over 25% without structural necessity may be considered deceptive.
+
+[SECTION: ADVERTISEMENT RULES - Rule 21]
+(1) No advertisement shall contain any misleading information about the quantity.
+(2) If MRP is displayed in an advertisement, the net quantity must also be prominently displayed.
+(3) Selling price in advertisements cannot exceed the MRP.
+
+[SECTION: REGISTRATION - Rule 27]
+(1) Every manufacturer, packer, and importer of packaged commodities must be registered with the appropriate authority.
+(2) Registration number format varies by state and issuing authority.
+(3) Registration ensures traceability and accountability.
+
+[SECTION: EXEMPTIONS - Rule 3]
+The following are EXEMPT from these rules:
+(1) Packages containing quantity less than 10 grams or 10 millilitres
+(2) Fast food/restaurant food sold immediately after preparation
+(3) Agricultural produce in packages exceeding 50 kg
+(4) Certain institutional packages (not for retail sale)
+
+[SECTION: PENALTIES]
+
+[General Violations:]
+- First offence: Fine up to ₹2,000
+- Second and subsequent offences: Fine up to ₹4,000
+
+[Registration Violations:]
+- Operating without registration: ₹4,000 fine
+
+[Selling Above MRP:]
+- Fine as per Section 36 of the Act
+- May extend to ₹25,000 for first offence
+- Up to ₹50,000 for subsequent offences
+
+[SECTION: E-COMMERCE APPLICABILITY]
+All rules applicable to physical retail packages also apply to:
+(1) Product listings on e-commerce platforms
+(2) Product images must clearly show all mandatory declarations
+(3) Product description must include all mandatory information
+(4) Selling price cannot exceed MRP
+
+[END OF LEGAL CORPUS]

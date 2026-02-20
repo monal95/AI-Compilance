@@ -1,0 +1,442 @@
+{
+  "categories": {
+    "food": {
+      "name": "Food & Edibles",
+      "description": "Packaged food items, edible oils, beverages, snacks",
+      "rules": [
+        {
+          "code": "FOOD-001",
+          "field": "mrp_inclusive_of_taxes",
+          "mandatory": true,
+          "penalty": 25,
+          "message": "Missing MRP declaration (inclusive of all taxes) - Critical for food products"
+        },
+        {
+          "code": "FOOD-002",
+          "field": "net_quantity",
+          "mandatory": true,
+          "penalty": 25,
+          "message": "Missing net quantity/weight declaration - Required for all packaged food"
+        },
+        {
+          "code": "FOOD-003",
+          "field": "manufacturer_or_importer",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing manufacturer/packer details - Essential for food safety traceability"
+        },
+        {
+          "code": "FOOD-004",
+          "field": "date_of_manufacture_or_import",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing manufacturing/packing date - Critical for food freshness"
+        },
+        {
+          "code": "FOOD-005",
+          "field": "expiry_date",
+          "mandatory": true,
+          "penalty": 25,
+          "message": "Missing expiry/best before date - Mandatory for all food products"
+        },
+        {
+          "code": "FOOD-006",
+          "field": "ingredients_list",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing ingredients list - Required for consumer allergen awareness"
+        },
+        {
+          "code": "FOOD-007",
+          "field": "nutritional_info",
+          "mandatory": true,
+          "penalty": 10,
+          "message": "Missing nutritional information - Required per FSSAI regulations"
+        },
+        {
+          "code": "FOOD-008",
+          "field": "fssai_license",
+          "mandatory": true,
+          "penalty": 30,
+          "message": "Missing FSSAI license number - Mandatory for all food businesses in India"
+        },
+        {
+          "code": "FOOD-009",
+          "field": "consumer_care_information",
+          "mandatory": true,
+          "penalty": 10,
+          "message": "Missing consumer care contact information"
+        },
+        {
+          "code": "FOOD-010",
+          "field": "country_of_origin",
+          "mandatory": false,
+          "required_if_imported": true,
+          "penalty": 15,
+          "message": "Missing country of origin for imported food products"
+        },
+        {
+          "code": "FOOD-011",
+          "field": "veg_nonveg_symbol",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing vegetarian/non-vegetarian symbol - Mandatory for all packaged food in India"
+        },
+        {
+          "code": "FOOD-012",
+          "field": "common_generic_name",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing common or generic name of food product - Trade name alone not sufficient"
+        },
+        {
+          "code": "FOOD-013",
+          "field": "manufacturer_address",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing complete manufacturer/packer address with PIN code"
+        },
+        {
+          "code": "FOOD-014",
+          "field": "importer_address",
+          "mandatory": false,
+          "required_if_imported": true,
+          "penalty": 15,
+          "message": "Missing importer name and address for imported food products"
+        }
+      ],
+      "additional_fields": [
+        "expiry_date",
+        "ingredients_list",
+        "nutritional_info",
+        "fssai_license",
+        "veg_nonveg_symbol",
+        "allergen_info",
+        "storage_instructions",
+        "common_generic_name",
+        "manufacturer_address"
+      ]
+    },
+    "electronics": {
+      "name": "Electronics & Electrical",
+      "description": "Mobile phones, laptops, chargers, appliances, gadgets",
+      "rules": [
+        {
+          "code": "ELEC-001",
+          "field": "mrp_inclusive_of_taxes",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing MRP declaration (inclusive of all taxes)"
+        },
+        {
+          "code": "ELEC-002",
+          "field": "manufacturer_or_importer",
+          "mandatory": true,
+          "penalty": 25,
+          "message": "Missing manufacturer/importer details - Critical for warranty claims"
+        },
+        {
+          "code": "ELEC-003",
+          "field": "model_number",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing model number - Required for product identification"
+        },
+        {
+          "code": "ELEC-004",
+          "field": "serial_number",
+          "mandatory": false,
+          "penalty": 10,
+          "message": "Missing serial number - Recommended for traceability"
+        },
+        {
+          "code": "ELEC-005",
+          "field": "bis_certification",
+          "mandatory": true,
+          "penalty": 30,
+          "message": "Missing BIS certification mark - Mandatory for electronics sold in India"
+        },
+        {
+          "code": "ELEC-006",
+          "field": "power_rating",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing power rating/voltage specifications"
+        },
+        {
+          "code": "ELEC-007",
+          "field": "warranty_information",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing warranty period and terms"
+        },
+        {
+          "code": "ELEC-008",
+          "field": "consumer_care_information",
+          "mandatory": true,
+          "penalty": 10,
+          "message": "Missing consumer care/service center information"
+        },
+        {
+          "code": "ELEC-009",
+          "field": "country_of_origin",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing country of origin - Mandatory for all electronics"
+        },
+        {
+          "code": "ELEC-010",
+          "field": "date_of_manufacture_or_import",
+          "mandatory": true,
+          "penalty": 10,
+          "message": "Missing date of manufacture/import"
+        },
+        {
+          "code": "ELEC-011",
+          "field": "energy_rating",
+          "mandatory": false,
+          "required_if_appliance": true,
+          "penalty": 10,
+          "message": "Missing BEE energy star rating - Required for electrical appliances"
+        },
+        {
+          "code": "ELEC-012",
+          "field": "common_generic_name",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing common or generic name of electronic product"
+        },
+        {
+          "code": "ELEC-013",
+          "field": "manufacturer_address",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing complete manufacturer/importer address with PIN code"
+        },
+        {
+          "code": "ELEC-014",
+          "field": "importer_address",
+          "mandatory": false,
+          "required_if_imported": true,
+          "penalty": 15,
+          "message": "Missing importer name and address for imported electronics"
+        }
+      ],
+      "additional_fields": [
+        "model_number",
+        "serial_number",
+        "bis_certification",
+        "power_rating",
+        "warranty_information",
+        "energy_rating",
+        "safety_precautions",
+        "common_generic_name",
+        "manufacturer_address"
+      ]
+    },
+    "cosmetics": {
+      "name": "Cosmetics & Personal Care",
+      "description": "Skincare, haircare, makeup, toiletries, personal hygiene products",
+      "rules": [
+        {
+          "code": "COSM-001",
+          "field": "mrp_inclusive_of_taxes",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing MRP declaration (inclusive of all taxes)"
+        },
+        {
+          "code": "COSM-002",
+          "field": "net_quantity",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing net quantity/volume declaration"
+        },
+        {
+          "code": "COSM-003",
+          "field": "manufacturer_or_importer",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing manufacturer/importer details"
+        },
+        {
+          "code": "COSM-004",
+          "field": "ingredients_list",
+          "mandatory": true,
+          "penalty": 25,
+          "message": "Missing full ingredients list - Critical for allergy prevention"
+        },
+        {
+          "code": "COSM-005",
+          "field": "batch_number",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing batch/lot number - Required for product recalls"
+        },
+        {
+          "code": "COSM-006",
+          "field": "date_of_manufacture_or_import",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing manufacturing date"
+        },
+        {
+          "code": "COSM-007",
+          "field": "expiry_date",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing expiry/use-by date - Mandatory for cosmetics"
+        },
+        {
+          "code": "COSM-008",
+          "field": "usage_instructions",
+          "mandatory": true,
+          "penalty": 10,
+          "message": "Missing directions for use"
+        },
+        {
+          "code": "COSM-009",
+          "field": "warnings_precautions",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing safety warnings and precautions"
+        },
+        {
+          "code": "COSM-010",
+          "field": "consumer_care_information",
+          "mandatory": true,
+          "penalty": 10,
+          "message": "Missing consumer care contact information"
+        },
+        {
+          "code": "COSM-011",
+          "field": "country_of_origin",
+          "mandatory": false,
+          "required_if_imported": true,
+          "penalty": 15,
+          "message": "Missing country of origin for imported cosmetics"
+        },
+        {
+          "code": "COSM-012",
+          "field": "cruelty_free_certification",
+          "mandatory": false,
+          "penalty": 5,
+          "message": "Missing cruelty-free/animal testing declaration"
+        },
+        {
+          "code": "COSM-013",
+          "field": "common_generic_name",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing common or generic name of cosmetic product"
+        },
+        {
+          "code": "COSM-014",
+          "field": "manufacturer_address",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing complete manufacturer/packer address with PIN code"
+        },
+        {
+          "code": "COSM-015",
+          "field": "importer_address",
+          "mandatory": false,
+          "required_if_imported": true,
+          "penalty": 15,
+          "message": "Missing importer name and address for imported cosmetics"
+        }
+      ],
+      "additional_fields": [
+        "ingredients_list",
+        "batch_number",
+        "expiry_date",
+        "usage_instructions",
+        "warnings_precautions",
+        "skin_type_suitability",
+        "cruelty_free_certification",
+        "common_generic_name",
+        "manufacturer_address"
+      ]
+    },
+    "generic": {
+      "name": "General Products",
+      "description": "Default rules for unspecified product categories",
+      "rules": [
+        {
+          "code": "GEN-001",
+          "field": "mrp_inclusive_of_taxes",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing MRP declaration (inclusive of all taxes)"
+        },
+        {
+          "code": "GEN-002",
+          "field": "net_quantity",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing net quantity declaration"
+        },
+        {
+          "code": "GEN-003",
+          "field": "manufacturer_or_importer",
+          "mandatory": true,
+          "penalty": 20,
+          "message": "Missing manufacturer/importer details"
+        },
+        {
+          "code": "GEN-004",
+          "field": "consumer_care_information",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing consumer care information"
+        },
+        {
+          "code": "GEN-005",
+          "field": "date_of_manufacture_or_import",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing date of manufacture/import declaration"
+        },
+        {
+          "code": "GEN-006",
+          "field": "country_of_origin",
+          "mandatory": false,
+          "required_if_imported": true,
+          "penalty": 10,
+          "message": "Missing country of origin for imported goods"
+        },
+        {
+          "code": "GEN-007",
+          "field": "common_generic_name",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing common or generic name of product"
+        },
+        {
+          "code": "GEN-008",
+          "field": "manufacturer_address",
+          "mandatory": true,
+          "penalty": 15,
+          "message": "Missing complete manufacturer/packer address"
+        },
+        {
+          "code": "GEN-009",
+          "field": "importer_address",
+          "mandatory": false,
+          "required_if_imported": true,
+          "penalty": 15,
+          "message": "Missing importer name and address for imported goods"
+        }
+      ],
+      "additional_fields": [
+        "common_generic_name",
+        "manufacturer_address"
+      ]
+    }
+  },
+  "category_keywords": {
+    "food": ["food", "edible", "oil", "snack", "biscuit", "juice", "beverage", "drink", "cereal", "flour", "rice", "dal", "spice", "sauce", "chocolate", "candy", "milk", "dairy", "cheese", "butter", "ghee", "tea", "coffee", "water", "noodle", "pasta"],
+    "electronics": ["phone", "mobile", "laptop", "computer", "charger", "cable", "earphone", "headphone", "speaker", "television", "tv", "refrigerator", "fridge", "washing machine", "ac", "air conditioner", "fan", "heater", "iron", "mixer", "grinder", "microwave", "camera", "printer", "router", "power bank", "tablet", "watch", "smart"],
+    "cosmetics": ["cream", "lotion", "serum", "shampoo", "conditioner", "soap", "facewash", "face wash", "moisturizer", "sunscreen", "lipstick", "mascara", "foundation", "perfume", "deodorant", "body wash", "hair oil", "gel", "makeup", "nail polish", "skincare", "haircare", "beauty", "cosmetic", "toiletry"]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "rules": [
+    {
+      "code": "LM-PC-001",
+      "field": "mrp",
+      "mandatory": true,
+      "penalty": 20,
+      "message": "MRP declaration is mandatory on pre-packaged commodities."
+    },
+    {
+      "code": "LM-PC-002",
+      "field": "quantity",
+      "mandatory": true,
+      "penalty": 20,
+      "message": "Net quantity declaration is required."
+    },
+    {
+      "code": "LM-PC-003",
+      "field": "manufacturer",
+      "mandatory": true,
+      "penalty": 20,
+      "message": "Manufacturer/packer/importer details are required."
+    },
+    {
+      "code": "LM-PC-004",
+      "field": "country_of_origin",
+      "mandatory": true,
+      "penalty": 10,
+      "message": "Country of origin must be clearly declared for imported goods."
+    }
+  ]
+}
