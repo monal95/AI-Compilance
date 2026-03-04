@@ -1,8 +1,8 @@
 const CATEGORY_LABELS = {
-  food: "🍎 Food & Beverages",
-  electronics: "💻 Electronics",
-  cosmetics: "💄 Cosmetics & Personal Care",
-  generic: "📦 Generic Product",
+  food: "Food & Beverages",
+  electronics: "Electronics",
+  cosmetics: "Cosmetics & Personal Care",
+  generic: "Generic Product",
 };
 
 function getRiskColor(risk) {
@@ -104,22 +104,31 @@ export default function UrlAuditResultCard({ result }) {
   );
   const fieldsJson = JSON.stringify(fields, null, 2);
 
+  const complianceScore = result.compliance_score ?? result.score ?? 0;
+
   return (
     <div className="card">
-      <h2>Audit Results</h2>
-
-      {/* Score and Status */}
-      <div className="mb-4">
-        <div className="score-display">
+      {/* Header with Title and Score */}
+      <div className="audit-header">
+        <h2>Audit Results</h2>
+        <div className="audit-score-badge">
           <span className={`badge ${getRiskColor(result.risk_level)}`}>
             {result.risk_level}
           </span>
-          <span className="score-value">{result.compliance_score}%</span>
+          <span
+            className={`score-value-inline ${getScoreClass(complianceScore)}`}
+          >
+            {complianceScore}%
+          </span>
         </div>
+      </div>
+
+      {/* Score Bar */}
+      <div className="mb-4">
         <div className="score-bar">
           <div
-            className={`score-fill ${getScoreClass(result.compliance_score)}`}
-            style={{ width: `${result.compliance_score}%` }}
+            className={`score-fill ${getScoreClass(complianceScore)}`}
+            style={{ width: `${complianceScore}%` }}
           />
         </div>
       </div>

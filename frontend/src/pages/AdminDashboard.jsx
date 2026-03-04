@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   getAuditExportCsvUrl,
-  getAuditExportPdfUrl,
   getAuditReportById,
   getAuditReports,
   getAuditStats,
@@ -10,6 +9,7 @@ import {
 import AdminMetrics from "../components/AdminMetrics";
 import AuditReportDetail from "../components/AuditReportDetail";
 import AnalyticsCharts from "../components/AnalyticsCharts";
+import ProductDetailModal from "../components/ProductDetailModal";
 
 const riskOptions = ["All", "Compliant", "Moderate Risk", "High Risk"];
 const tabs = ["Reports", "Analytics"];
@@ -20,9 +20,8 @@ export default function AdminDashboard() {
   const [risk, setRisk] = useState("All");
   const [stats, setStats] = useState(null);
   const [selectedReport, setSelectedReport] = useState(null);
-
-  // Advanced filters
-  const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [filters, setFilters] = useState({
     minScore: "",
     maxScore: "",
@@ -33,7 +32,6 @@ export default function AdminDashboard() {
 
   async function loadReports() {
     try {
-      // Check if any advanced filters are active
       const hasAdvancedFilters = Object.values(filters).some((v) => v !== "");
 
       if (hasAdvancedFilters) {
@@ -76,6 +74,7 @@ export default function AdminDashboard() {
       sellerId: "",
     });
     setRisk("All");
+    setSearchQuery("");
   }
 
   useEffect(() => {
@@ -84,8 +83,21 @@ export default function AdminDashboard() {
   }, [risk]);
 
   const sorted = useMemo(() => {
-    return [...reports].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
-  }, [reports]);
+    let filtered = [...reports];
+
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (item) =>
+          item.scraped_data?.title?.toLowerCase().includes(query) ||
+          item.product_name?.toLowerCase().includes(query) ||
+          item.seller_id?.toLowerCase().includes(query),
+      );
+    }
+
+    return filtered.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  }, [reports, searchQuery]);
 
   const getRiskBadgeClass = (riskLevel) => {
     if (riskLevel === "Compliant") return "badge-success";
@@ -119,192 +131,467 @@ export default function AdminDashboard() {
         <>
           {/* Reports List */}
           <div className="card">
-            <div className="card-header">
-              <h2>Audit Reports</h2>
-              <div className="toolbar-right">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  🔍 {showFilters ? "Hide Filters" : "Filters"}
-                </button>
-                <select
-                  value={risk}
-                  onChange={(event) => setRisk(event.target.value)}
-                >
-                  {riskOptions.map((item) => (
-                    <option key={item}>{item}</option>
-                  ))}
-                </select>
-                <a
-                  className="btn btn-secondary"
-                  href={getAuditExportCsvUrl()}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  📥 CSV
-                </a>
-                <a
-                  className="btn btn-secondary"
-                  href={getAuditExportPdfUrl()}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  📄 PDF
-                </a>
-              </div>
-            </div>
+            <div style={{ padding: "20px" }}>
+              <h2 style={{ margin: "0 0 20px 0" }}>📋 Audit Reports</h2>
 
-            {/* Advanced Filters Panel */}
-            {showFilters && (
+              {/* Quick Filter Buttons + Search + Export */}
               <div
-                className="p-4"
                 style={{
-                  background: "var(--bg-secondary)",
-                  borderBottom: "1px solid var(--border)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  marginBottom: "20px",
+                  flexWrap: "wrap",
                 }}
               >
-                <div
-                  className="grid-auto mb-3"
+                {/* Quick Risk Filters */}
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {["All", "Compliant", "Moderate Risk", "High Risk"].map(
+                    (riskLevel) => (
+                      <button
+                        key={riskLevel}
+                        className="btn btn-secondary"
+                        onClick={() => setRisk(riskLevel)}
+                        style={{
+                          background:
+                            risk === riskLevel
+                              ? riskLevel === "Compliant"
+                                ? "var(--success)"
+                                : riskLevel === "Moderate Risk"
+                                  ? "var(--warning)"
+                                  : riskLevel === "High Risk"
+                                    ? "var(--danger)"
+                                    : "var(--primary)"
+                              : "var(--bg-secondary)",
+                          color:
+                            risk === riskLevel
+                              ? "white"
+                              : "var(--text-secondary)",
+                          border:
+                            risk === riskLevel
+                              ? "none"
+                              : "1px solid var(--border)",
+                          padding: "8px 14px",
+                          fontSize: "13px",
+                          fontWeight: "500",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        {riskLevel === "All" && "📊 All"}
+                        {riskLevel === "Compliant" && "✅ Compliant"}
+                        {riskLevel === "Moderate Risk" && "⚠️ Moderate"}
+                        {riskLevel === "High Risk" && "❌ High Risk"}
+                      </button>
+                    ),
+                  )}
+                </div>
+
+                {/* Advanced Filters Toggle */}
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                   style={{
-                    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                    padding: "8px 12px",
+                    fontSize: "13px",
                   }}
                 >
-                  <div className="form-group">
-                    <label className="text-sm text-secondary">Min Score</label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={filters.minScore}
-                      onChange={(e) =>
-                        setFilters({ ...filters, minScore: e.target.value })
-                      }
-                      placeholder="0"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="text-sm text-secondary">Max Score</label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={filters.maxScore}
-                      onChange={(e) =>
-                        setFilters({ ...filters, maxScore: e.target.value })
-                      }
-                      placeholder="100"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="text-sm text-secondary">From Date</label>
-                    <input
-                      type="date"
-                      value={filters.dateFrom}
-                      onChange={(e) =>
-                        setFilters({ ...filters, dateFrom: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="text-sm text-secondary">To Date</label>
-                    <input
-                      type="date"
-                      value={filters.dateTo}
-                      onChange={(e) =>
-                        setFilters({ ...filters, dateTo: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="text-sm text-secondary">Seller ID</label>
-                    <input
-                      type="text"
-                      value={filters.sellerId}
-                      onChange={(e) =>
-                        setFilters({ ...filters, sellerId: e.target.value })
-                      }
-                      placeholder="Filter by seller"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  <button className="btn btn-primary" onClick={loadReports}>
-                    Apply Filters
-                  </button>
-                  <button className="btn btn-secondary" onClick={clearFilters}>
-                    Clear
-                  </button>
-                </div>
-              </div>
-            )}
+                  🔍 {showAdvancedFilters ? "Hide" : "Advanced"}
+                </button>
 
-            {sorted.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">📋</div>
-                <p>No reports found</p>
+                {/* Export Dropdown */}
+                <div
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <button
+                    className="btn btn-secondary"
+                    style={{
+                      padding: "8px 12px",
+                      fontSize: "13px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                    onClick={(e) => {
+                      const menu =
+                        e.currentTarget.parentElement.querySelector(
+                          ".export-menu",
+                        );
+                      if (menu) {
+                        menu.style.display =
+                          menu.style.display === "none" ? "block" : "none";
+                      }
+                    }}
+                  >
+                    📥 Export
+                  </button>
+                  <div
+                    className="export-menu"
+                    style={{
+                      display: "none",
+                      position: "absolute",
+                      right: 0,
+                      top: "100%",
+                      background: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "8px",
+                      boxShadow: "var(--shadow-md)",
+                      zIndex: 10,
+                      minWidth: "200px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <a
+                      href={getAuditExportCsvUrl()}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: "block",
+                        padding: "12px 16px",
+                        color: "var(--text)",
+                        textDecoration: "none",
+                        borderBottom: "1px solid var(--border)",
+                        fontSize: "13px",
+                        cursor: "pointer",
+                        transition: "background 0.2s",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background =
+                          "var(--bg-secondary)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "transparent")
+                      }
+                    >
+                      <span>📊 CSV Report</span>
+                      <div
+                        style={{
+                          fontSize: "11px",
+                          color: "var(--text-secondary)",
+                          marginTop: "4px",
+                        }}
+                      >
+                        For spreadsheets & analysis
+                      </div>
+                    </a>
+                    <a
+                      href={getAuditExportCsvUrl()}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: "block",
+                        padding: "12px 16px",
+                        color: "var(--text)",
+                        textDecoration: "none",
+                        borderBottom: "1px solid var(--border)",
+                        fontSize: "13px",
+                        cursor: "pointer",
+                        transition: "background 0.2s",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background =
+                          "var(--bg-secondary)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "transparent")
+                      }
+                    >
+                      <span>⚖️ Regulatory Report</span>
+                      <div
+                        style={{
+                          fontSize: "11px",
+                          color: "var(--text-secondary)",
+                          marginTop: "4px",
+                        }}
+                      >
+                        For authorities & compliance
+                      </div>
+                    </a>
+                    <a
+                      href={getAuditExportCsvUrl()}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: "block",
+                        padding: "12px 16px",
+                        color: "var(--text)",
+                        textDecoration: "none",
+                        fontSize: "13px",
+                        cursor: "pointer",
+                        transition: "background 0.2s",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background =
+                          "var(--bg-secondary)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "transparent")
+                      }
+                    >
+                      <span>🔐 Detailed Analysis</span>
+                      <div
+                        style={{
+                          fontSize: "11px",
+                          color: "var(--text-secondary)",
+                          marginTop: "4px",
+                        }}
+                      >
+                        Complete audit details
+                      </div>
+                    </a>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Product</th>
-                      <th>Seller</th>
-                      <th>Compliance Score</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sorted.map((item) => (
-                      <tr key={item.product_id}>
-                        <td style={{ fontWeight: "500" }}>
-                          {item.scraped_data?.title ||
-                            item.product_name ||
-                            "N/A"}
-                        </td>
-                        <td>{item.seller_id}</td>
-                        <td>
-                          <strong>
-                            {item.compliance_score ?? item.score}%
-                          </strong>
-                        </td>
-                        <td>
-                          <span
-                            className={`badge ${getRiskBadgeClass(item.risk_level)}`}
-                          >
-                            {item.risk_level}
-                          </span>
-                        </td>
-                        <td
-                          style={{
-                            fontSize: "13px",
-                            color: "var(--text-secondary)",
-                          }}
-                        >
-                          {new Date(item.created_at).toLocaleDateString()}
-                        </td>
-                        <td>
-                          <button
-                            className="btn btn-primary"
-                            type="button"
-                            onClick={() => viewReport(item.product_id)}
-                          >
-                            View
-                          </button>
-                        </td>
+
+              {/* Search Field */}
+              <div style={{ marginBottom: "20px" }}>
+                <input
+                  type="text"
+                  placeholder="🔍 Search by product name, seller ID..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    background: "var(--bg-secondary)",
+                  }}
+                />
+              </div>
+
+              {/* Advanced Filters Panel */}
+              {showAdvancedFilters && (
+                <div
+                  style={{
+                    padding: "16px",
+                    background: "var(--bg-secondary)",
+                    borderRadius: "8px",
+                    marginBottom: "20px",
+                    border: "1px solid var(--border)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(auto-fit, minmax(150px, 1fr))",
+                      gap: "12px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <div className="form-group">
+                      <label style={{ fontSize: "12px" }}>Min Score</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={filters.minScore}
+                        onChange={(e) =>
+                          setFilters({ ...filters, minScore: e.target.value })
+                        }
+                        placeholder="0"
+                        style={{ padding: "8px 12px", fontSize: "13px" }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: "12px" }}>Max Score</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={filters.maxScore}
+                        onChange={(e) =>
+                          setFilters({ ...filters, maxScore: e.target.value })
+                        }
+                        placeholder="100"
+                        style={{ padding: "8px 12px", fontSize: "13px" }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: "12px" }}>From Date</label>
+                      <input
+                        type="date"
+                        value={filters.dateFrom}
+                        onChange={(e) =>
+                          setFilters({ ...filters, dateFrom: e.target.value })
+                        }
+                        style={{ padding: "8px 12px", fontSize: "13px" }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: "12px" }}>To Date</label>
+                      <input
+                        type="date"
+                        value={filters.dateTo}
+                        onChange={(e) =>
+                          setFilters({ ...filters, dateTo: e.target.value })
+                        }
+                        style={{ padding: "8px 12px", fontSize: "13px" }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: "12px" }}>Seller ID</label>
+                      <input
+                        type="text"
+                        value={filters.sellerId}
+                        onChange={(e) =>
+                          setFilters({ ...filters, sellerId: e.target.value })
+                        }
+                        placeholder="Filter by seller"
+                        style={{ padding: "8px 12px", fontSize: "13px" }}
+                      />
+                    </div>
+                  </div>
+                  <div
+                    style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
+                  >
+                    <button
+                      className="btn btn-primary"
+                      onClick={loadReports}
+                      style={{
+                        padding: "8px 14px",
+                        fontSize: "13px",
+                      }}
+                    >
+                      Apply
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={clearFilters}
+                      style={{
+                        padding: "8px 14px",
+                        fontSize: "13px",
+                      }}
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Reports Table */}
+              <div style={{ overflowX: "auto" }}>
+                {sorted.length === 0 ? (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "40px 20px",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    <div style={{ fontSize: "40px", marginBottom: "10px" }}>
+                      📋
+                    </div>
+                    <p>
+                      No reports found. Try adjusting your filters or search
+                      query.
+                    </p>
+                  </div>
+                ) : (
+                  <table className="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Seller</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                        <th>Violations</th>
+                        <th>Date</th>
+                        <th>Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {sorted.map((item) => (
+                        <tr key={item._id || item.product_id}>
+                          <td>
+                            <strong>
+                              {item.scraped_data?.title ||
+                                item.product_title ||
+                                item.product_name ||
+                                "N/A"}
+                            </strong>
+                          </td>
+                          <td>{item.seller_id}</td>
+                          <td>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                padding: "6px 12px",
+                                borderRadius: "4px",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                background:
+                                  (item.compliance_score ?? item.score) >= 80
+                                    ? "var(--success-light)"
+                                    : (item.compliance_score ?? item.score) >=
+                                        50
+                                      ? "var(--warning-light)"
+                                      : "var(--danger-light)",
+                                color:
+                                  (item.compliance_score ?? item.score) >= 80
+                                    ? "var(--success)"
+                                    : (item.compliance_score ?? item.score) >=
+                                        50
+                                      ? "var(--warning)"
+                                      : "var(--danger)",
+                              }}
+                            >
+                              {(item.compliance_score ?? item.score) >= 80
+                                ? "✅ Compliant"
+                                : (item.compliance_score ?? item.score) >= 50
+                                  ? "⚠️ Moderate"
+                                  : "❌ High Risk"}
+                            </span>
+                          </td>
+                          <td>
+                            <strong>
+                              {(item.compliance_score ?? item.score).toFixed(2)}
+                              %
+                            </strong>
+                          </td>
+                          <td>{item.violations?.length || 0}</td>
+                          <td
+                            style={{
+                              fontSize: "13px",
+                              color: "var(--text-secondary)",
+                            }}
+                          >
+                            {new Date(item.created_at).toLocaleDateString()}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-primary"
+                              onClick={() =>
+                                viewReport(item._id || item.product_id)
+                              }
+                              style={{
+                                padding: "6px 12px",
+                                fontSize: "12px",
+                              }}
+                            >
+                              👁️ View
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Report Detail */}
-          {selectedReport && <AuditReportDetail report={selectedReport} />}
+          {/* Report Detail Modal */}
+          {selectedReport && (
+            <ProductDetailModal
+              report={selectedReport}
+              onClose={() => setSelectedReport(null)}
+            />
+          )}
         </>
       )}
     </section>

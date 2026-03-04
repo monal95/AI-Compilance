@@ -159,5 +159,169 @@
     "general_violation": 2000,
     "registration_violation": 4000,
     "repeat_violation": "as_per_Act_Section_36"
+  },
+  "scoring_system": {
+    "description": "Legal Metrology Compliance Scoring - Score Based Risk Assessment",
+    "base_score": 100,
+    "minimum_score": 0,
+    "violation_categories": {
+      "category_a": {
+        "name": "Prohibited Practices (Very Serious Violations)",
+        "deduction_per_violation": 25,
+        "violations": [
+          {
+            "code": "LM-SCORE-A001",
+            "description": "Using misleading words in quantity declaration (approx, about, minimum, average, not less than)",
+            "field": "net_quantity_no_approximation",
+            "points": 25
+          },
+          {
+            "code": "LM-SCORE-A002",
+            "description": "Selling above MRP - violation of Rule 18",
+            "field": "price_not_exceeding_mrp",
+            "points": 25
+          },
+          {
+            "code": "LM-SCORE-A003",
+            "description": "False or deceptive quantity declaration",
+            "field": "false_quantity_declaration",
+            "points": 25
+          }
+        ]
+      },
+      "category_b": {
+        "name": "Missing Mandatory Declarations (Serious Violations)",
+        "deduction_per_violation": 20,
+        "violations": [
+          {
+            "code": "LM-SCORE-B001",
+            "description": "Missing MRP (inclusive of all taxes)",
+            "field": "mrp_inclusive_of_taxes",
+            "points": 20
+          },
+          {
+            "code": "LM-SCORE-B002",
+            "description": "Missing Net Quantity",
+            "field": "net_quantity",
+            "points": 20
+          },
+          {
+            "code": "LM-SCORE-B003",
+            "description": "Missing Manufacturer/Packer/Importer Name & Address",
+            "field": "manufacturer_or_importer",
+            "points": 20
+          },
+          {
+            "code": "LM-SCORE-B004",
+            "description": "Missing Month & Year of Manufacture/Packing/Import",
+            "field": "date_of_manufacture_or_import",
+            "points": 20
+          },
+          {
+            "code": "LM-SCORE-B005",
+            "description": "Missing Customer Care Details",
+            "field": "consumer_care_information",
+            "points": 20
+          },
+          {
+            "code": "LM-SCORE-B006",
+            "description": "Missing Country of Origin (if imported)",
+            "field": "country_of_origin",
+            "points": 20
+          }
+        ]
+      },
+      "category_c": {
+        "name": "Format / Declaration Errors (Moderate Violations)",
+        "deduction_per_violation": 10,
+        "violations": [
+          {
+            "code": "LM-SCORE-C001",
+            "description": "Incorrect SI unit usage in quantity",
+            "field": "net_quantity_unit_valid",
+            "points": 10
+          },
+          {
+            "code": "LM-SCORE-C002",
+            "description": "Incorrect font size or visibility",
+            "field": "font_size_visibility",
+            "points": 10
+          },
+          {
+            "code": "LM-SCORE-C003",
+            "description": "Declaration not on Principal Display Panel",
+            "field": "declaration_on_pdp",
+            "points": 10
+          },
+          {
+            "code": "LM-SCORE-C004",
+            "description": "Improper MRP format",
+            "field": "mrp_format_valid",
+            "points": 10
+          }
+        ]
+      },
+      "category_d": {
+        "name": "Minor Technical Issues",
+        "deduction_per_violation": 5,
+        "violations": [
+          {
+            "code": "LM-SCORE-D001",
+            "description": "Spacing/alignment issues in declarations",
+            "field": "spacing_alignment",
+            "points": 5
+          },
+          {
+            "code": "LM-SCORE-D002",
+            "description": "Minor formatting inconsistencies",
+            "field": "formatting_consistency",
+            "points": 5
+          }
+        ]
+      }
+    },
+    "risk_level_assessment": {
+      "description": "Risk levels determined solely by compliance score",
+      "levels": [
+        {
+          "score_range": "90-100",
+          "risk_level": "Fully Compliant",
+          "indicator": "✅",
+          "action": "No action required",
+          "penalty_risk": "None"
+        },
+        {
+          "score_range": "70-89",
+          "risk_level": "Minor Risk",
+          "indicator": "⚠️",
+          "action": "Address minor issues within 30 days",
+          "penalty_risk": "Low"
+        },
+        {
+          "score_range": "50-69",
+          "risk_level": "Moderate Legal Risk",
+          "indicator": "⚠️⚠️",
+          "action": "Mandatory correction required within 15 days",
+          "penalty_risk": "Moderate - Possible fine Rs. 2000-5000"
+        },
+        {
+          "score_range": "0-49",
+          "risk_level": "High Penalty Risk",
+          "indicator": "❌",
+          "action": "Immediate removal from sale, product detention required",
+          "penalty_risk": "High - Possible fine Rs. 5000+ or imprisonment"
+        }
+      ]
+    },
+    "scoring_logic": {
+      "step_1": "Start with base score of 100",
+      "step_2": "For each Category A violation found, deduct 25 points",
+      "step_3": "For each Category B violation found, deduct 20 points",
+      "step_4": "For each Category C violation found, deduct 10 points",
+      "step_5": "For each Category D violation found, deduct 5 points",
+      "step_6": "If any Category A violation exists, cap maximum achievable score at 60",
+      "step_7": "Ensure score does not go below 0",
+      "step_8": "Match final score to risk level using risk_level_assessment ranges"
+    }
   }
 }

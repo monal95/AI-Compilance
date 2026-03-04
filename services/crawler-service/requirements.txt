@@ -1,0 +1,17 @@
+# Crawler Service Dependencies
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pydantic>=2.5.0
+
+# Async HTTP client
+aiohttp>=3.9.0
+
+# Browser automation (for JS-heavy sites)
+playwright>=1.41.0
+
+# Database clients
+motor>=3.3.0
+redis>=5.0.0
+
+# Utilities
+python-multipart>=0.0.6
