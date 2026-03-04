@@ -1,171 +1,454 @@
 # AI Legal Metrology Compliance Intelligence Cloud
 
-Microservices-style, AI-driven compliance platform for e-commerce product listings with OCR + NLP + rules + RAG + LLM.
+Enterprise-grade, microservices-based compliance platform for e-commerce product listings with automated web crawling, multi-language OCR, NLP-based field identification, configurable rule engine, and real-time reporting.
 
-## 1) Project Folder Structure
+## Architecture Overview
 
-```text
-AI Compilance/
-├── backend/
-│   ├── __init__.py
-│   ├── .env.example
-│   ├── main.py
-│   ├── database.py
-│   ├── models.py
-│   ├── requirements.txt
-│   ├── legal_rules/
-│   │   ├── rules.json
-│   │   └── legal_corpus.txt
-│   └── services/
-│       ├── __init__.py
-│       ├── ingestion_service.py
-│       ├── ocr_service.py
-│       ├── nlp_service.py
-│       ├── rule_engine.py
-│       ├── rag_service.py
-│       ├── llm_service.py
-│       ├── compliance_engine.py
-│       ├── reporting_service.py
-│       └── llm_prompt_template.txt
-├── frontend/
-│   ├── .env.example
-│   ├── index.html
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── vercel.json
-│   └── src/
-│       ├── main.jsx
-│       ├── App.jsx
-│       ├── api.js
-│       ├── styles.css
-│       ├── components/
-│       │   ├── ProductForm.jsx
-│       │   ├── ComplianceResultCard.jsx
-│       │   └── AdminMetrics.jsx
-│       └── pages/
-│           ├── SellerDashboard.jsx
-│           └── AdminDashboard.jsx
-├── render.yaml
-├── .gitignore
-└── README.md
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              API Gateway (nginx)                              │
+│                                  Port 80                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+       ┌──────────────┬───────────────┼───────────────┬──────────────┐
+       │              │               │               │              │
+       ▼              ▼               ▼               ▼              ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│   Crawler   │ │    OCR      │ │    NLP      │ │    Rule     │ │  Reporting  │
+│   Service   │ │  Service    │ │  Service    │ │   Engine    │ │   Service   │
+│   :8001     │ │   :8002     │ │   :8003     │ │   :8005     │ │   :8006     │
+└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
+       │              │               │               │              │
+       └──────────────┴───────────────┼───────────────┴──────────────┘
+                                      │
+                            ┌─────────────────┐
+                            │   Compliance    │
+                            │    Engine       │
+                            │    :8004        │
+                            └─────────────────┘
+                                      │
+                    ┌─────────────────┼─────────────────┐
+                    │                 │                 │
+                    ▼                 ▼                 ▼
+            ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+            │   MongoDB   │   │    Redis    │   │ Prometheus  │
+            │   :27017    │   │    :6379    │   │   :9090     │
+            └─────────────┘   └─────────────┘   └─────────────┘
 ```
 
-## 2) Backend Service Responsibilities
+## Project Structure
 
-- `ingestion_service.py`: merges form + OCR + packaging text, parses batch CSV.
-- `ocr_service.py`: Tesseract OCR (`eng+hin`) + text cleanup.
-- `nlp_service.py`: extracts MRP, quantity, manufacturer, country + normalizes units.
-- `rule_engine.py`: loads `rules.json`, deducts penalties, returns violations.
-- `rag_service.py`: chunks legal corpus, builds FAISS index, retrieves top 3 clauses.
-- `llm_service.py`: generates explanation/corrections/risk summary from context.
-- `compliance_engine.py`: orchestrates all services and computes risk class.
-- `reporting_service.py`: stores reports in MongoDB (fallback in-memory), CSV export.
+```
+AI-Compliance/
+├── services/
+│   ├── crawler-service/      # Web scraping with rate limiting
+│   │   ├── app/
+│   │   │   ├── main.py
+│   │   │   └── async_fetcher.py
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── ocr-service/          # Multi-language OCR with OpenCV
+│   │   ├── app/
+│   │   │   ├── main.py
+│   │   │   ├── preprocessor.py
+│   │   │   ├── ocr_engine.py
+│   │   │   └── field_extractor.py
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── nlp-service/          # Entity extraction & pattern matching
+│   │   ├── app/
+│   │   │   ├── main.py
+│   │   │   ├── entity_extractor.py
+│   │   │   ├── text_normalizer.py
+│   │   │   └── pattern_matcher.py
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── rule-engine/          # MongoDB-based rule management
+│   │   ├── app/
+│   │   │   ├── main.py
+│   │   │   ├── rule_executor.py
+│   │   │   └── rule_validator.py
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── compliance-engine/    # Orchestration service
+│   │   ├── app/
+│   │   │   └── main.py
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   └── reporting-service/    # Dashboard & report generation
+│       ├── app/
+│       │   └── main.py
+│       ├── Dockerfile
+│       └── requirements.txt
+│
+├── shared/                   # Shared libraries
+│   ├── models/
+│   │   └── __init__.py       # Pydantic models
+│   ├── database/
+│   │   ├── mongodb.py        # MongoDB async client
+│   │   └── redis_client.py   # Redis client
+│   └── utils/
+│       └── logger.py         # Centralized logging
+│
+├── docker/                   # Docker configurations
+│   ├── nginx.conf            # API Gateway config
+│   ├── mongo-init.js         # MongoDB initialization
+│   └── prometheus.yml        # Monitoring config
+│
+├── docs/
+│   └── ARCHITECTURE.md       # Detailed architecture docs
+│
+├── backend/                  # Legacy monolithic backend
+├── frontend/                 # React frontend
+├── docker-compose.yml        # Container orchestration
+└── .env.example              # Environment template
+```
 
-### New URL Audit Pipeline Modules (Web Scrape + OCR)
+## Microservices
 
-- `scraper_service.py`: BeautifulSoup-based scraper for product title, description, specification table, and image URLs.
-- `image_ocr_extraction_service.py`: downloads scraped product images and extracts text via OCR.
-- `field_identification_service.py`: regex + NLP-style field extraction for mandatory declarations.
-- `validation_service.py`: configurable legal metrology validation engine using `backend/legal_rules/audit_rules.json`.
-- `url_audit_service.py`: orchestration module to run scrape → OCR → field identification → rule validation.
+### 1. Crawler Service (Port 8001)
 
-## 3) API Endpoints
+Automated web crawling with rate limiting and retry logic.
 
-- `POST /scan-product` (multipart form: seller_id, product_name, description, packaging_text, image)
-- `POST /batch-scan` (CSV upload)
-- `GET /reports?risk_level=Compliant|Moderate Risk|High Risk`
-- `GET /reports/export` (CSV download)
-- `GET /product/{id}`
-- `GET /health`
+**Endpoints:**
 
-### URL Audit + Dashboard Endpoints
+- `POST /crawl` - Crawl single URL
+- `POST /crawl/bulk` - Crawl multiple URLs
+- `GET /crawl/status/{job_id}` - Check crawl job status
 
-- `POST /audit/url` (JSON body: `url`, `seller_id`)
-- `GET /audit/reports?risk_level=Compliant|Moderate Risk|High Risk`
-- `GET /audit/reports/{product_id}`
-- `GET /audit/stats`
-- `GET /audit/export/csv`
-- `GET /audit/export/pdf`
+**Features:**
 
-## 4) Example Rules + Corpus
+- User agent rotation
+- Rate limiting (configurable)
+- Retry with exponential backoff
+- Redis-based job queue
 
-- Rules file: `backend/legal_rules/rules.json`
-- Corpus file: `backend/legal_rules/legal_corpus.txt`
+### 2. OCR Service (Port 8002)
 
-Both are already included and can be expanded safely for production.
+Multi-language OCR with OpenCV preprocessing.
 
-## 5) Local Setup Instructions
+**Endpoints:**
+
+- `POST /ocr/process` - Process single image
+- `POST /ocr/batch` - Process multiple images
+- `GET /ocr/languages` - List supported languages
+
+**Supported Languages:**
+
+- English (eng)
+- Hindi (hin)
+- Tamil (tam)
+- Telugu (tel)
+- Kannada (kan)
+- Marathi (mar)
+- Bengali (ben)
+- Gujarati (guj)
+
+**Preprocessing Pipeline:**
+
+1. Grayscale conversion
+2. Noise reduction (Gaussian blur)
+3. Adaptive thresholding
+4. Deskewing
+5. Border removal
+
+### 3. NLP Service (Port 8003)
+
+Entity extraction and text normalization.
+
+**Endpoints:**
+
+- `POST /nlp/extract-entities` - Extract entities from text
+- `POST /nlp/normalize` - Normalize text
+- `POST /nlp/analyze` - Full NLP analysis
+
+**Capabilities:**
+
+- MRP extraction (multiple formats)
+- Quantity/weight normalization
+- Manufacturer identification
+- Country of origin detection
+- Date parsing (manufacturing/expiry)
+- FSSAI license detection
+- Pattern matching for compliance fields
+
+### 4. Rule Engine (Port 8005)
+
+MongoDB-based configurable compliance rules.
+
+**Endpoints:**
+
+- `GET /rules` - List all rules
+- `POST /rules` - Create new rule
+- `GET /rules/{rule_id}` - Get rule details
+- `PUT /rules/{rule_id}` - Update rule
+- `DELETE /rules/{rule_id}` - Delete rule
+- `POST /rules/execute` - Execute rules against data
+- `GET /rules/stats` - Rule statistics
+
+**Supported Operators:**
+
+- Comparison: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`
+- String: `contains`, `not_contains`, `starts_with`, `ends_with`, `matches_regex`
+- Existence: `exists`, `not_exists`, `is_empty`, `is_not_empty`
+- Collection: `in`, `not_in`, `length_eq`, `length_gt`, `length_lt`
+- Type: `is_type`, `is_numeric`, `is_date`
+- Range: `between`, `not_between`
+
+### 5. Compliance Engine (Port 8004)
+
+Orchestrates all services for compliance audits.
+
+**Endpoints:**
+
+- `POST /compliance/audit/text` - Audit text data
+- `POST /compliance/audit/image` - Audit image(s)
+- `GET /compliance/audit/{audit_id}` - Get audit results
+- `GET /compliance/health` - Health check
+
+**Workflow:**
+
+1. Receive audit request
+2. If image: Call OCR service
+3. Call NLP service for entity extraction
+4. Call Rule Engine for compliance check
+5. Calculate compliance score
+6. Store results in MongoDB
+7. Return audit report
+
+### 6. Reporting Service (Port 8006)
+
+Dashboard analytics and report generation.
+
+**Endpoints:**
+
+- `GET /reports/dashboard` - Dashboard statistics
+- `POST /reports/generate` - Generate report (PDF/Excel/CSV)
+- `GET /reports/trends` - Compliance trends
+- `GET /reports/download/{report_id}` - Download report
+
+**Report Formats:**
+
+- PDF (with charts and tables)
+- Excel (.xlsx with multiple sheets)
+- CSV (raw data export)
+
+## Quick Start
 
 ### Prerequisites
 
-- Python 3.11+
-- Node.js 20+
-- MongoDB (optional, fallback available)
-- Tesseract OCR installed (Windows path example in `.env.example`)
+- Docker & Docker Compose
+- 8GB+ RAM recommended
 
-### Backend
+### 1. Clone and Configure
 
 ```bash
-cd backend
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
+git clone <repository-url>
+cd AI-Compliance
+cp .env.example .env
+# Edit .env with your settings
+```
+
+### 2. Start All Services
+
+```bash
+# Build and start all containers
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Check service health
+curl http://localhost/health
+```
+
+### 3. Access Services
+
+| Service     | URL                   |
+| ----------- | --------------------- |
+| API Gateway | http://localhost      |
+| Crawler     | http://localhost:8001 |
+| OCR         | http://localhost:8002 |
+| NLP         | http://localhost:8003 |
+| Compliance  | http://localhost:8004 |
+| Rule Engine | http://localhost:8005 |
+| Reporting   | http://localhost:8006 |
+| MongoDB     | localhost:27017       |
+| Redis       | localhost:6379        |
+| Prometheus  | http://localhost:9090 |
+| Grafana     | http://localhost:3001 |
+
+## API Examples
+
+### Crawl a Product URL
+
+```bash
+curl -X POST http://localhost/api/crawler/crawl \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com/product/123"}'
+```
+
+### Process Image with OCR
+
+```bash
+curl -X POST http://localhost/api/ocr/process \
+  -F "image=@product_label.jpg" \
+  -F "languages=eng,hin"
+```
+
+### Run Compliance Audit
+
+```bash
+curl -X POST http://localhost/api/compliance/audit/text \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "MRP Rs 299 Net Weight 500g Made in India",
+    "category": "food",
+    "seller_id": "seller-001"
+  }'
+```
+
+### Generate Report
+
+```bash
+curl -X POST http://localhost/api/reports/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "format": "pdf",
+    "date_range": {"start": "2024-01-01", "end": "2024-12-31"},
+    "filters": {"risk_level": "high"}
+  }'
+```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+# MongoDB
+MONGODB_URL=mongodb://localhost:27017
+MONGODB_DB=compliance_db
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# Service URLs (for inter-service communication)
+CRAWLER_SERVICE_URL=http://crawler-service:8001
+OCR_SERVICE_URL=http://ocr-service:8002
+NLP_SERVICE_URL=http://nlp-service:8003
+RULE_ENGINE_URL=http://rule-engine:8005
+
+# OCR Settings
+TESSERACT_CMD=/usr/bin/tesseract
+DEFAULT_OCR_LANGUAGES=eng,hin
+
+# Crawler Settings
+CRAWLER_RATE_LIMIT=2
+CRAWLER_MAX_RETRIES=3
+CRAWLER_TIMEOUT=30
+
+# Logging
+LOG_LEVEL=INFO
+```
+
+## Development
+
+### Run Individual Service
+
+```bash
+cd services/ocr-service
 pip install -r requirements.txt
-copy .env.example .env
-cd ..
-uvicorn backend.main:app --reload
+uvicorn app.main:app --reload --port 8002
 ```
 
-### Frontend
+### Run Tests
 
 ```bash
-cd frontend
-npm install
-copy .env.example .env
-npm run dev
+# Run all tests
+pytest
+
+# Run specific service tests
+pytest services/ocr-service/tests/
 ```
 
-Open frontend at `http://localhost:5173`.
+### Add New Rule
 
-## 6) Batch CSV Input Format
-
-Use headers:
-
-```csv
-seller_id,product_name,description,packaging_text
-seller-001,Turmeric Powder,"Spice powder","MRP Rs 120 Net Wt 500g Manufacturer: ABC Foods Made in India"
+```bash
+curl -X POST http://localhost/api/rules \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "MRP Required",
+    "description": "Product must have MRP declared",
+    "category": "food",
+    "field": "mrp",
+    "operator": "exists",
+    "severity": "high",
+    "penalty_points": 25
+  }'
 ```
 
-## 7) Deployment Instructions (Render + Vercel)
+## Monitoring
 
-### Render (Backend)
+### Prometheus Metrics
 
-1. Push repository to GitHub.
-2. In Render, create Blueprint deployment using `render.yaml`.
-3. Set environment variables:
-   - `GROQ_API_KEY`
-   - `GROQ_MODEL` (optional, default: `llama-3.1-8b-instant`)
-   - `MONGODB_URL`
-   - `MONGODB_DB`
-   - `TESSERACT_CMD` (optional if runtime includes default path)
-4. Deploy service.
+All services expose `/metrics` endpoint with:
 
-### Vercel (Frontend)
+- Request count and latency
+- Error rates
+- Service-specific metrics (OCR processing time, rule execution count, etc.)
 
-1. Import `frontend` as Vercel project.
-2. Framework preset: `Vite`.
-3. Set env var `VITE_API_BASE_URL` to Render backend URL.
-4. Deploy.
+### Grafana Dashboards
 
-## 8) Sample LLM Prompt Template
+Pre-configured dashboards available at http://localhost:3001:
 
-See `backend/services/llm_prompt_template.txt`.
+- Service Health Overview
+- Compliance Audit Trends
+- OCR Processing Statistics
+- Rule Engine Analytics
 
-## 9) Hackathon-to-Production Upgrade Path
+## Legacy Backend
 
-- Replace in-memory fallback with strict MongoDB dependency + indexes.
-- Add async task queue (Celery/RQ) for heavy OCR and batch jobs.
-- Add auth (JWT + RBAC for seller/admin).
-- Add observability (OpenTelemetry + Prometheus + Grafana).
-- Version rule packs and legal corpus with admin management UI.
-- Add automated regression tests and clause-grounded explanation validation.
+The original monolithic backend is preserved in `backend/` for reference and gradual migration. It provides:
+
+- Form-based product scanning
+- URL audit pipeline
+- Basic reporting
+
+Access via: `uvicorn backend.main:app --reload`
+
+## Troubleshooting
+
+### Service Won't Start
+
+```bash
+# Check logs
+docker-compose logs <service-name>
+
+# Restart specific service
+docker-compose restart <service-name>
+```
+
+### MongoDB Connection Issues
+
+```bash
+# Check MongoDB is running
+docker-compose ps mongodb
+
+# Connect to MongoDB shell
+docker exec -it mongodb mongosh
+```
+
+### OCR Quality Issues
+
+- Ensure image resolution is at least 300 DPI
+- Check supported languages are installed
+- Try different preprocessing options
+
+## License
+
+MIT License - See LICENSE file for details.

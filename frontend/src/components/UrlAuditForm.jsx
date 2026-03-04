@@ -99,7 +99,7 @@ export default function UrlAuditForm({ onSubmit, loading }) {
             Processing...
           </>
         ) : (
-          <>🔍 Run Audit</>
+          <>Run Audit</>
         )}
       </button>
     </form>

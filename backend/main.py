@@ -1,3 +1,4 @@
+import logging
 from io import BytesIO
 from typing import Optional
 
@@ -14,6 +15,7 @@ from backend.services.ocr_service import OCRService
 from backend.services.reporting_service import ReportingService
 from backend.services.url_audit_service import URLAuditService
 from backend.services.validation_service import ValidationService
+from backend.services.scoring_service import ComplianceScoringService
 from backend.services.category_audit_service import (
     CategoryAuditService,
     CategoryAnalyticsService,
@@ -34,6 +36,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -50,6 +54,8 @@ validation_service = ValidationService()
 category_audit_service = CategoryAuditService(max_workers=5)
 advanced_ocr_service = get_advanced_ocr_service()
 
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Background task storage for bulk audits
 bulk_audit_tasks: dict[str, dict] = {}
@@ -345,8 +351,145 @@ async def health():
 
 
 # ============================================
-# Category-Based Bulk Audit Endpoints
+# Compliance Scoring Endpoints
 # ============================================
+
+@app.post("/audit/score")
+async def calculate_compliance_score(violations: dict):
+    """
+    Calculate compliance score based on violations found.
+    
+    Request:
+    {
+        "violations": [
+            {
+                "category": "A",
+                "code": "LM-SCORE-A001",
+                "description": "Using misleading words in quantity",
+                "field": "net_quantity_no_approximation"
+            }
+        ]
+    }
+    
+    Returns compliance score (0-100), risk level, and violation breakdown.
+    """
+    try:
+        violation_list = violations.get("violations", [])
+        result = ComplianceScoringService.calculate_compliance_score(violation_list)
+        
+        return {
+            "compliance_score": result.compliance_score,
+            "risk_level": result.risk_level,
+            "risk_indicator": result.risk_indicator,
+            "penalty_risk": result.penalty_risk,
+            "action_required": result.action_required,
+            "total_deductions": result.total_deductions,
+            "violations_summary": {
+                "category_a_prohibited_practices": len(result.category_a_violations),
+                "category_b_missing_declarations": len(result.category_b_violations),
+                "category_c_format_errors": len(result.category_c_violations),
+                "category_d_minor_issues": len(result.category_d_violations),
+                "total_violations": len(result.violations),
+            },
+            "violations_by_category": {
+                "category_a": result.category_a_violations,
+                "category_b": result.category_b_violations,
+                "category_c": result.category_c_violations,
+                "category_d": result.category_d_violations,
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/audit/validate-product")
+async def validate_product_compliance(product_data: dict):
+    """
+    Validate a product's compliance with Legal Metrology rules.
+    
+    Request body can include:
+    {
+        "mrp_inclusive_of_taxes": true,
+        "net_quantity": "500g",
+        "manufacturer_name": "XYZ Pvt Ltd",
+        "date_of_manufacture": "01/2025",
+        "consumer_care": "+91-9999999999",
+        "price_exceeds_mrp": false,
+        "misleading_quantity_words": false,
+        "valid_si_units": true,
+        "incorrect_font_size": false,
+        "declaration_on_pdp": true,
+        "improper_mrp_format": false,
+        "spacing_alignment_issues": false,
+        "formatting_inconsistencies": false,
+        "is_imported": false,
+        "country_of_origin": null
+    }
+    
+    Returns compliance score, risk level, and specific violations found.
+    """
+    try:
+        result = ComplianceScoringService.validate_product_compliance(product_data)
+        risk_summary = ComplianceScoringService.get_risk_summary(result)
+        return risk_summary
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/audit/scoring-guide")
+async def get_scoring_guide():
+    """Get the Legal Metrology compliance scoring configuration and guidelines"""
+    return {
+        "base_score": ComplianceScoringService.BASE_SCORE,
+        "minimum_score": ComplianceScoringService.MIN_SCORE,
+        "max_score_with_category_a": ComplianceScoringService.MAX_SCORE_WITH_CATEGORY_A,
+        "category_deductions": ComplianceScoringService.CATEGORY_DEDUCTIONS,
+        "risk_levels": ComplianceScoringService.RISK_LEVELS,
+        "scoring_rules": {
+            "category_a": {
+                "name": "Prohibited Practices (Very Serious Violations)",
+                "deduction": 25,
+                "examples": [
+                    "Using misleading words like 'approx', 'about', 'minimum', 'average'",
+                    "Selling above MRP",
+                    "False or deceptive quantity declaration"
+                ]
+            },
+            "category_b": {
+                "name": "Missing Mandatory Declarations (Serious Violations)",
+                "deduction": 20,
+                "examples": [
+                    "Missing MRP (inclusive of all taxes)",
+                    "Missing Net Quantity",
+                    "Missing Manufacturer/Packer/Importer details",
+                    "Missing Month & Year of Manufacture",
+                    "Missing Customer Care Details",
+                    "Missing Country of Origin (if imported)"
+                ]
+            },
+            "category_c": {
+                "name": "Format / Declaration Errors (Moderate Violations)",
+                "deduction": 10,
+                "examples": [
+                    "Incorrect SI unit usage",
+                    "Incorrect font size",
+                    "Declaration not on Principal Display Panel",
+                    "Improper MRP format"
+                ]
+            },
+            "category_d": {
+                "name": "Minor Technical Issues",
+                "deduction": 5,
+                "examples": [
+                    "Spacing/alignment issues",
+                    "Minor formatting inconsistencies"
+                ]
+            }
+        }
+    }
+
+
+
 
 @app.get("/audit/categories")
 async def list_categories():
@@ -398,7 +541,8 @@ async def audit_by_category(
         "errors": []
     }
     
-    def run_bulk_audit():
+    async def run_bulk_audit_async():
+        """Async background task for bulk audit"""
         try:
             progress = category_audit_service.audit_by_category(
                 category=category_enum,
@@ -419,27 +563,31 @@ async def audit_by_category(
             })
             
             # Save results to database
-            import asyncio
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
             for result in progress.results:
-                loop.run_until_complete(reporting_service.save_result(result))
-            loop.close()
+                try:
+                    # Save result dict directly to database
+                    result_dict = result.model_dump(mode="json")
+                    await db_client.save_report(result_dict)
+                except Exception as e:
+                    logger.error(f"Error saving result: {str(e)}")
+                    bulk_audit_tasks[task_id]["errors"].append(f"Failed to save result: {str(e)}")
             
         except Exception as e:
+            logger.error(f"Bulk audit failed: {str(e)}")
             bulk_audit_tasks[task_id].update({
                 "status": "failed",
                 "errors": [str(e)]
             })
     
-    # Run in background
-    background_tasks.add_task(run_bulk_audit)
+    # Run async task in background
+    background_tasks.add_task(run_bulk_audit_async)
     
     return {
         "task_id": task_id,
         "status": "started",
         "message": f"Bulk audit started for category: {category}"
     }
+
 
 
 @app.get("/audit/category/status/{task_id}")
