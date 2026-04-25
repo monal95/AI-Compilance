@@ -289,6 +289,15 @@ async def list_product_categories():
     }
 
 
+@app.get("/audit/categories")
+async def list_audit_categories():
+    """Get list of available product categories with their rule counts (audit endpoint)"""
+    return {
+        "status": "success",
+        "categories": validation_service.get_available_categories()
+    }
+
+
 @app.get("/categories/{category_id}/rules")
 async def get_category_rules(category_id: str):
     """Get detailed rules for a specific category"""
