@@ -238,94 +238,197 @@ Dashboard analytics and report generation.
 - Excel (.xlsx with multiple sheets)
 - CSV (raw data export)
 
-## Quick Start
+## Getting Started
 
-### Prerequisites
+### Prerequisites (All Modes)
 
-- Docker & Docker Compose
-- 8GB+ RAM recommended
+- Python 3.8+ (for backend development)
+- Node.js 16+ (for frontend)
+- Git
+- Optional: Docker & Docker Compose (for containerized setup)
 
-### 1. Clone and Configure
+---
+
+## Backend Setup (Uvicorn Development Mode)
+
+Run the backend standalone for development without Docker services.
+
+### Step 1: Clone the Repository
 
 ```bash
 git clone <repository-url>
-cd AI-Compliance
-cp .env.example .env
-# Edit .env with your settings
+cd AI-Compilance
 ```
 
-### 2. Start All Services
+### Step 2: Create Python Virtual Environment
+
+```bash
+# Windows
+python -m venv .venv-2
+.\.venv-2\Scripts\activate
+
+# macOS/Linux
+python3 -m venv .venv-2
+source .venv-2/bin/activate
+```
+
+### Step 3: Install Backend Dependencies
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+### Step 4: Set Environment Variables
+
+```bash
+# Windows PowerShell
+$env:OPENAI_API_KEY = "your-openai-api-key"
+$env:MONGODB_URL = "mongodb://localhost:27017"
+
+# macOS/Linux
+export OPENAI_API_KEY="your-openai-api-key"
+export MONGODB_URL="mongodb://localhost:27017"
+```
+
+### Step 5: Run the Backend Server
+
+```bash
+# Run from project root (not from backend/ directory)
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+**Backend will be available at:** http://127.0.0.1:8000
+
+**Swagger API Docs:** http://127.0.0.1:8000/docs
+
+### Notes
+
+- The `--reload` flag enables auto-reload on file changes
+- If you need database support, MongoDB must be running (see Docker section below)
+- For full audit functionality, ensure MongoDB and Redis are accessible
+
+---
+
+## Frontend Setup (React Development Mode)
+
+Run the frontend React development server.
+
+### Step 1: Navigate to Frontend Directory
+
+```bash
+cd frontend
+```
+
+### Step 2: Install Frontend Dependencies
+
+```bash
+npm install
+```
+
+### Step 3: Configure Backend URL (Optional)
+
+Create a `.env` file in the `frontend/` directory:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+(If not set, defaults to `http://localhost:8000`)
+
+### Step 4: Run the Dev Server
+
+```bash
+npm run dev
+```
+
+**Frontend will be available at:** http://localhost:5173
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+The optimized build will be in `frontend/dist/`
+
+---
+
+## Docker Setup (Complete Stack)
+
+Run the entire application stack with Docker containers.
+
+### Step 1: Clone and Configure
+
+```bash
+git clone <repository-url>
+cd AI-Compilance
+cp .env.example .env
+# Edit .env with your settings (optional)
+```
+
+### Step 2: Start All Services
 
 ```bash
 # Build and start all containers
 docker-compose up -d
 
-# View logs
+# View logs in real-time
 docker-compose logs -f
 
 # Check service health
 curl http://localhost/health
 ```
 
-### 3. Access Services
+### Step 3: Access Services
 
-| Service     | URL                   |
-| ----------- | --------------------- |
-| API Gateway | http://localhost      |
-| Crawler     | http://localhost:8001 |
-| OCR         | http://localhost:8002 |
-| NLP         | http://localhost:8003 |
-| Compliance  | http://localhost:8004 |
-| Rule Engine | http://localhost:8005 |
-| Reporting   | http://localhost:8006 |
-| MongoDB     | localhost:27017       |
-| Redis       | localhost:6379        |
-| Prometheus  | http://localhost:9090 |
-| Grafana     | http://localhost:3001 |
+| Service             | URL                        |
+| ------------------- | -------------------------- |
+| **Frontend**        | http://localhost:5173      |
+| **Backend API**     | http://localhost:8000      |
+| **API Docs**        | http://localhost:8000/docs |
+| API Gateway (nginx) | http://localhost           |
+| Crawler Service     | http://localhost:8001      |
+| OCR Service         | http://localhost:8002      |
+| NLP Service         | http://localhost:8003      |
+| Compliance Engine   | http://localhost:8004      |
+| Rule Engine         | http://localhost:8005      |
+| Reporting Service   | http://localhost:8006      |
+| MongoDB             | localhost:27017            |
+| Redis               | localhost:6379             |
+| Prometheus          | http://localhost:9090      |
+| Grafana             | http://localhost:3001      |
 
-## API Examples
-
-### Crawl a Product URL
-
-```bash
-curl -X POST http://localhost/api/crawler/crawl \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com/product/123"}'
-```
-
-### Process Image with OCR
+### Stop All Services
 
 ```bash
-curl -X POST http://localhost/api/ocr/process \
-  -F "image=@product_label.jpg" \
-  -F "languages=eng,hin"
+docker-compose down
+
+# Remove volumes (clean database)
+docker-compose down -v
 ```
 
-### Run Compliance Audit
+### View Logs
 
 ```bash
-curl -X POST http://localhost/api/compliance/audit/text \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "MRP Rs 299 Net Weight 500g Made in India",
-    "category": "food",
-    "seller_id": "seller-001"
-  }'
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f backend
+docker-compose logs -f mongodb
 ```
 
-### Generate Report
+### Run Individual Service with Docker
 
-```bash
-curl -X POST http://localhost/api/reports/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "format": "pdf",
-    "date_range": {"start": "2024-01-01", "end": "2024-12-31"},
-    "filters": {"risk_level": "high"}
-  }'
-```
+````bash
+# Start only specific services
+docker-compose up -d mongodb redis
+docker-compose up -d backend
 
-## Configuration
+# Restart a service
+docker-compose restart backend
+
+## Configuration Reference
 
 ### Environment Variables
 
@@ -337,7 +440,10 @@ MONGODB_DB=compliance_db
 # Redis
 REDIS_URL=redis://localhost:6379
 
-# Service URLs (for inter-service communication)
+# OpenAI
+OPENAI_API_KEY=your-api-key-here
+
+# Service URLs (for inter-service communication in Docker)
 CRAWLER_SERVICE_URL=http://crawler-service:8001
 OCR_SERVICE_URL=http://ocr-service:8002
 NLP_SERVICE_URL=http://nlp-service:8003
@@ -354,19 +460,22 @@ CRAWLER_TIMEOUT=30
 
 # Logging
 LOG_LEVEL=INFO
-```
+````
 
-## Development
+Copy `.env.example` to `.env` and update values as needed.
 
-### Run Individual Service
+## Development Guide
+
+### Running Microservices Individually (Docker)
 
 ```bash
+# Start a specific microservice
 cd services/ocr-service
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8002
 ```
 
-### Run Tests
+### Testing
 
 ```bash
 # Run all tests
@@ -374,12 +483,17 @@ pytest
 
 # Run specific service tests
 pytest services/ocr-service/tests/
+
+# Run with coverage
+pytest --cov=backend tests/
 ```
 
-### Add New Rule
+### API Examples
+
+#### Add New Rule
 
 ```bash
-curl -X POST http://localhost/api/rules \
+curl -X POST http://localhost:8000/audit/rules \
   -H "Content-Type: application/json" \
   -d '{
     "name": "MRP Required",
@@ -390,6 +504,32 @@ curl -X POST http://localhost/api/rules \
     "severity": "high",
     "penalty_points": 25
   }'
+```
+
+#### Crawl a Product URL
+
+```bash
+curl -X POST http://localhost:8000/audit/url \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com/product/123",
+    "seller_id": "seller-001",
+    "category": "food"
+  }'
+```
+
+#### Process Image with OCR
+
+```bash
+curl -X POST http://localhost:8000/audit/ocr \
+  -F "image=@product_label.jpg" \
+  -F "seller_id=seller-001"
+```
+
+#### Get Audit Statistics
+
+```bash
+curl http://localhost:8000/audit/stats
 ```
 
 ## Monitoring
@@ -411,15 +551,25 @@ Pre-configured dashboards available at http://localhost:3001:
 - OCR Processing Statistics
 - Rule Engine Analytics
 
-## Legacy Backend
+## Architecture Notes
 
-The original monolithic backend is preserved in `backend/` for reference and gradual migration. It provides:
+### Legacy Backend
+
+The original monolithic backend is preserved in the `backend/` directory for reference and gradual migration. It provides:
 
 - Form-based product scanning
 - URL audit pipeline
+- Category-based auditing
 - Basic reporting
 
-Access via: `uvicorn backend.main:app --reload`
+This is being gradually refactored into microservices. For development, run it with:
+
+```bash
+# From project root
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+See the [Backend Setup](#backend-setup-uvicorn-development-mode) section above for full instructions.
 
 ## Troubleshooting
 
